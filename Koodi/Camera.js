@@ -1,25 +1,18 @@
-import { Size } from './Tiles.js';
+class Camera {
+    constructor() {
+        this.location = { x: 0, y: 0 };
+        this.zoom = 1;
+    }
 
-const Camera = {
-    x: 0,
-    y: 0,
-    width: window.innerWidth,
-    height: window.innerHeight,
-    scale: 1
-};
+    moveCamera(x, y) {
+        const scale = world.tileSize;
 
-function MoveCamera(tileX, tileY) {
-    Camera.x = tileX * Size + Size / 2 - Camera.width / 2;
-    Camera.y = tileY * Size + Size / 2 - Camera.height / 2;
+        this.location.x = x * scale;
+        this.location.y = y * scale;
+    }
+
+    zoomCamera(Amount) {
+        this.zoom += Amount
+    }
+
 }
-
-function ResizeCamera(width, height) {
-    Camera.width = width;
-    Camera.height = height;
-}
-
-function ZoomCamera(scale) {
-    Camera.scale = scale;
-}
-
-export { Camera, MoveCamera, ResizeCamera, ZoomCamera };

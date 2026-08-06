@@ -1,27 +1,38 @@
-const Size = 128;
-
-const Tiles = {
-    Concrete: {
-        id: 0,
-        image: new Image(),
-        src: '../Kuvat/Concrete.png',
-        coordinates: { x: 0, y: 0 }
+class Concrete {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.type = "Concrete";
+        this.image = new Image();
+        this.image.src = './Kuvat/Concrete.png';
+        this.isSolid = false
+        this.health = 250000
+        this.defence = 1000
     }
-};
+}
 
-const SpawnTile = (tile, x, y) => {
-    tile.coordinates.x = x;
-    tile.coordinates.y = y;
-};
-
-const DrawTile = (tile, x, y, context) => {
-    context.drawImage(tile.image, x, y, Size, Size);
-};
-
-const LoadTiles = () => {
-    for (const tile in Tiles) {
-        Tiles[tile].image.src = Tiles[tile].src;
+class ConcreteWhite {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.type = "ConcreteWhite";
+        this.image = new Image();
+        this.image.src = './Kuvat/ConcreteWhite.png';
+        this.isSolid = false
+        this.health = 250000
+        this.defence = 1000
     }
-};
+}
 
-export { Size, Tiles, DrawTile, LoadTiles, SpawnTile };
+class SideWalk {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.type = "SideWalk";
+        this.image = new Image();
+        this.image.src = './Kuvat/Sidewalk.png';
+        this.isSolid = false
+        this.health = 250000
+        this.defence = 1000
+    }
+}
