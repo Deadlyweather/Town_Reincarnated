@@ -1,6 +1,7 @@
 class Debug {
     constructor(State) {
         this.DebugMode = State || false;
+        this.defaultVision = new AI().vision;
     }
 
     ToggleDebug() {
@@ -17,7 +18,7 @@ class Debug {
             this.ShowPlayerRotation()
             this.ShowCameraTarget()
             this.ShowCursorStats()
-            
+            this.showCursorEntity()
         }
     }
 
@@ -58,7 +59,6 @@ class Debug {
         ctx.fillText(`Player Y: ${player.location.y.toFixed(2)}`, 8, 64 );
         ctx.fillStyle = "cyan";
         ctx.fillText(`Player Rotation: ${player.rotation.toFixed(0)}`, 8, 96);
-        ctx.restore()
     }
 
     ShowPlayerBounds() {
@@ -159,5 +159,77 @@ class Debug {
         ctx.fillText(`Tile ( X: ${TileX}, Y: ${TileY} )`, cursor.location.x + 32,  cursor.location.y - 64)
         ctx.fillText(`Delta: ${controls.getWheelDelta()}`, cursor.location.x + 32, cursor.location.y - 96)
         ctx.restore()
+    }
+
+    showCursorEntity() {
+        const x = canvas.width / 2
+        const y = canvas.height / 2
+        const TileX = Math.round(((cursor.location.x - x + camera.location.x * camera.zoom) / (world.tileSize * camera.zoom)) * 100) / 100
+        const TileY = Math.round(((cursor.location.y - y + camera.location.y * camera.zoom) / (world.tileSize * camera.zoom)) * 100) / 100
+        // hitbox check
+        const entity = world.getEntityAt(TileX, TileY)
+        if (entity) {
+            const originX = canvas.width / 2 - camera.location.x * camera.zoom + entity.location.x * world.tileSize * camera.zoom;
+            const originY = canvas.height / 2 - camera.location.y * camera.zoom + entity.location.y * world.tileSize * camera.zoom;
+            const size = (entity.size || world.tileSize) * camera.zoom
+            const hitboxSize = size * (entity.hitbox ?? 1)
+            const vision = entity.vision ?? this.defaultVision
+            const rotation = entity.rotation ?? 0
+
+            if (entity.aggroRange > 0 && vision > 0) {
+                const halfVision = vision * Math.PI / 360
+                const facingAngle = rotation * Math.PI / 180
+                const startAngle = facingAngle - halfVision
+                const endAngle = facingAngle + halfVision
+
+                ctx.save()
+                ctx.beginPath()
+                ctx.moveTo(originX, originY)
+                ctx.arc(
+                    originX,
+                    originY,
+                    entity.aggroRange * camera.zoom,
+                    startAngle,
+                    endAngle
+                )
+                ctx.closePath()
+                ctx.fillStyle = "red"
+                ctx.globalAlpha = 0.15
+                ctx.fill()
+                ctx.strokeStyle = "red"
+                ctx.lineWidth = 2
+                ctx.globalAlpha = 0.8
+                ctx.stroke()
+                ctx.restore()
+            }
+
+            ctx.save()
+            ctx.strokeStyle = "yellow"
+            ctx.lineWidth = 2
+            ctx.strokeRect(originX - hitboxSize / 2, originY - hitboxSize / 2, hitboxSize, hitboxSize)
+            ctx.fillStyle = "yellow"
+            ctx.font = "24px Arial"
+            ctx.textAlign = "right"
+
+            
+            const name = entity.name || (entity.constructor && entity.constructor.name) || "Entity"
+            ctx.fillText(`Entity: ${name}`, x * 2 - 96, 240)
+            ctx.fillText(`Location: (${entity.location.x}, ${entity.location.y})`, x * 2 - 96, 270)
+            ctx.fillText(`Health: ${entity.health}`, x * 2 - 96, 300)
+            ctx.fillText(`Defence: ${entity.defence}`, x * 2 - 96, 330)
+            ctx.fillText(`Damage: ${entity.damage}`, x * 2 - 96, 360)
+            ctx.fillText(`Speed: ${entity.speed}`, x * 2 - 96, 390)
+            ctx.fillText(`Aggro range: ${entity.aggroRange}`, x * 2 - 96, 420)
+            ctx.fillText(`Vision: ${vision}°`, x * 2 - 96, 450)
+            ctx.fillText(`Rotation: ${rotation.toFixed(1)}°`, x * 2 - 96, 480)
+            ctx.fillText(`Aggro: ${entity.aggro ? "Player" : "None"}`, x * 2 - 96, 510)
+
+            if (entity.image) {
+                ctx.drawImage(entity.image, x * 2 - 84, 192, 64, 64)
+                ctx.strokeRect(x * 2 - 84, 192, 64, 64)
+            }
+            ctx.restore()
+        }
+        
     }
 }

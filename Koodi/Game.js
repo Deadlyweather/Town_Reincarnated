@@ -1,12 +1,14 @@
 const canvas = document.getElementById('Screen');
 const ctx = canvas.getContext('2d');
 
+const entity = new Entities()
 const world = new World(128, 16);
 const camera = new Camera();
 const player = new Player(0, 0);
 const debug = new Debug(true);
 const controls = new Controls()
 const cursor = new Cursor()
+
 
 function resizeCanvas() {
     canvas.width = window.innerWidth;
@@ -41,6 +43,8 @@ const FPS = 60
 const frameDuration = 1000 / FPS
 
 let lastFrame = 0
+let lastUpdateTime = performance.now()
+let lastEntitySpawn = performance.now()
 
 function render() {
     const now = performance.now()
@@ -48,6 +52,8 @@ function render() {
         requestAnimationFrame(render)
         return
     }
+    const deltaTime = (now - lastUpdateTime) / 1000
+    lastUpdateTime = now
     clearCanvas();
 
     const delta = controls.getWheelDelta()
@@ -59,18 +65,26 @@ function render() {
 
     world.drawWorld();
     player.DrawPlayer();
-    if (controls.isActionActive("MoveUp")) {
-        player.MovePlayer(0, -1)
+    let moveX = 0
+    let moveY = 0
+    if (controls.isActionActive("MoveUp")) moveY -= 1
+    if (controls.isActionActive("MoveDown")) moveY += 1
+    if (controls.isActionActive("MoveLeft")) moveX -= 1
+    if (controls.isActionActive("MoveRight")) moveX += 1
+
+    const moveLength = Math.hypot(moveX, moveY)
+    if (moveLength > 0) {
+        player.MovePlayer(moveX / moveLength, moveY / moveLength)
     }
-    if (controls.isActionActive("MoveDown")) {
-        player.MovePlayer(0, 1)
+
+    entity.drawEntities();
+    if (now - lastEntitySpawn >= entity.spawnrate) {
+        entity.spawnEntity()
+        lastEntitySpawn = now
     }
-    if (controls.isActionActive("MoveLeft")) {
-        player.MovePlayer(-1, 0)
-    }
-    if (controls.isActionActive("MoveRight")) {
-        player.MovePlayer(1, 0)
-    }
+    entity.updateAggro(player)
+    entity.updateProjectiles(deltaTime)
+    entity.drawProjectiles()
 
     debug.DrawDebug();
 

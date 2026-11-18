@@ -12,7 +12,13 @@ class Camera {
     }
 
     zoomCamera(Amount) {
-        this.zoom += Amount
+        if (this.zoom + Amount < 0.5) {
+            this.zoom = 0.5;
+        } else if (this.zoom + Amount > 2) {
+            this.zoom = 2;
+        } else {
+            this.zoom += Amount;
+        }
     }
 
 }

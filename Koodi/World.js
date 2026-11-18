@@ -1,6 +1,7 @@
 class World {
     constructor() {
         this.tiles = [];
+        this.entities = entity.entities;
         this.tileSize = 64;
         this.renderDistance = 64;
         this.voidTile = {
@@ -73,5 +74,16 @@ class World {
         };
     }
 
-    
+    getEntityAt(x, y) {
+        const entity = this.entities.find(entity => {
+            const hitboxSize = (entity.size ?? this.tileSize) * (entity.hitbox ?? 1);
+            const hitboxRadius = hitboxSize / (2 * this.tileSize);
+            return Math.abs(entity.location.x - x) <= hitboxRadius
+                && Math.abs(entity.location.y - y) <= hitboxRadius;
+        });
+        if (!entity) {
+            return null;
+        }
+        return entity;
+    }
 }

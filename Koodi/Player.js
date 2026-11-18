@@ -15,6 +15,8 @@ class Player {
         this.hitbox = 0.5;
         this.image = new Image();
         this.image.src = '../Kuvat/Player.png';
+
+        this.hidden = true
     }
 
     DrawPlayer() {
